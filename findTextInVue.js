@@ -18,9 +18,11 @@ function findTextInVue(code) {
   let result;
 
   const { descriptor } = parse(code);
+  console.log(descriptor, "descriptor");
   const template = descriptor.template ? descriptor.template.content : "";
   const compiled = compileTemplate({ source: template });
   let vueAst = compiled.ast;
+  console.log(vueAst, "vueAst");
 
   let expressTemp = findVueText(vueAst);
   expressTemp.forEach((item) => {
@@ -47,7 +49,7 @@ function findTextInVue(code) {
     let rex = new RegExp(items, "g");
     let codeTemplate = template.substring(
       vueAst.loc.start.offset,
-      vueAst.loc.end.offset,
+      vueAst.loc.end.offset
     );
     while ((result = rex.exec(codeTemplate))) {
       let res = result;
@@ -68,7 +70,7 @@ function findTextInVue(code) {
           (codeTemplate.substr(res.index - 1, 1) === "'" &&
             codeTemplate.substr(last, 1) === "'")
             ? true
-            : false,
+            : false
       });
     }
   });
@@ -107,16 +109,16 @@ function findVueText(ast) {
                 text: " " + itemText,
                 range: {
                   start: ast.loc.start.offset + 2,
-                  end: ast.loc.end.offset - 2,
+                  end: ast.loc.end.offset - 2
                 },
-                isString: true,
+                isString: true
               });
           else
             itemText.match(DOUBLE_BYTE_REGEX) &&
               arr.push({
                 text: itemText,
                 range: { start: ast.loc.start.offset, end: ast.loc.end.offset },
-                isString: false,
+                isString: false
               });
         });
       } else {
@@ -133,9 +135,9 @@ function findVueText(ast) {
                   end:
                     ast.loc.start.offset +
                     ast.text.indexOf(element) +
-                    element.length,
+                    element.length
                 },
-                isString: false,
+                isString: false
               });
             }
           });
@@ -145,7 +147,7 @@ function findVueText(ast) {
         arr.push({
           text: ast.text,
           range: { start: ast.loc.start.offset, end: ast.loc.end.offset },
-          isString: false,
+          isString: false
         });
     } else {
       ast.children &&
@@ -169,12 +171,12 @@ function javascriptI18n(code, filename) {
       if (path.node.value.match(DOUBLE_BYTE_REGEX)) {
         arr.push(path.node.value);
       }
-    },
+    }
   };
   let arrayPlugin = { visitor };
   babel.transformSync(code.toString(), {
     filename,
-    plugins: [arrayPlugin],
+    plugins: [arrayPlugin]
   });
   return arr;
 }
@@ -186,7 +188,7 @@ function findTextInVueTs(code, fileName, startNum) {
     code,
     ts.ScriptTarget.ES2015,
     true,
-    ts.ScriptKind.TS,
+    ts.ScriptKind.TS
   );
 
   function visit(node) {
@@ -200,7 +202,7 @@ function findTextInVueTs(code, fileName, startNum) {
           matches.push({
             range,
             text,
-            isString: true,
+            isString: true
           });
         }
         break;
@@ -218,7 +220,7 @@ function findTextInVueTs(code, fileName, startNum) {
           matches.push({
             range,
             text: code.slice(start + 1, end - 1),
-            isString: true,
+            isString: true
           });
         }
         break;
